@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover, user-scalable=no">
+<title>Arcade</title>
+
+<!-- PWA / install -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#14121f">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Arcade">
+<link rel="icon" href="icons/favicon-32.png" sizes="32x32">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --bg:#14121f; --bg-top:#2c2054; --surface:#1f1b2e;
+    --ink:#f4f0ff; --muted:#a79fc9; --cyan:#5eead4;
+    --shadow:0 10px 0 rgba(0,0,0,.45);
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;height:100%}
+  body{
+    background:radial-gradient(120% 90% at 50% -10%, var(--bg-top), var(--bg) 60%);
+    color:var(--ink);
+    font-family:'VT323',ui-monospace,monospace;
+    min-height:100dvh;
+    padding:max(20px,env(safe-area-inset-top)) 18px calc(28px + env(safe-area-inset-bottom));
+    display:flex;flex-direction:column;align-items:center;
+    overflow-x:hidden;
+  }
+  /* CRT scanline + vignette: the one signature flourish */
+  body::after{
+    content:"";position:fixed;inset:0;pointer-events:none;z-index:50;
+    background:
+      repeating-linear-gradient(0deg,rgba(0,0,0,.18) 0 1px,transparent 1px 3px),
+      radial-gradient(120% 120% at 50% 50%,transparent 62%,rgba(0,0,0,.55));
+    mix-blend-mode:multiply;
+  }
+
+  header{text-align:center;margin:8px 0 4px;max-width:760px}
+  .marquee{
+    font-family:'Press Start 2P',monospace;
+    font-size:clamp(18px,5vw,34px);line-height:1.5;
+    color:#fff;letter-spacing:1px;
+    text-shadow:0 0 8px rgba(94,234,212,.55), 0 4px 0 #6d28d9, 0 5px 12px rgba(0,0,0,.6);
+  }
+  .marquee .a{color:#ff4961}
+  .marquee .b{color:#5eead4}
+  .tagline{
+    font-size:clamp(20px,4.5vw,26px);color:var(--cyan);margin-top:14px;letter-spacing:2px;
+  }
+  .tagline .cursor{animation:blink 1.1s steps(1) infinite}
+  @keyframes blink{50%{opacity:0}}
+
+  main{width:100%;max-width:760px;margin-top:26px;flex:1}
+  .grid{
+    display:grid;gap:16px;
+    grid-template-columns:repeat(2,1fr);
+  }
+  @media (max-width:460px){ .grid{grid-template-columns:1fr} }
+
+  .game{
+    --c:#5eead4;
+    position:relative;display:flex;flex-direction:column;gap:8px;
+    text-decoration:none;color:var(--ink);
+    background:linear-gradient(180deg,var(--surface),#161325);
+    border:3px solid var(--c);
+    border-radius:16px;
+    padding:20px 18px 18px;
+    min-height:148px;
+    box-shadow:var(--shadow), inset 0 0 0 2px rgba(0,0,0,.4);
+    transition:transform .08s ease, box-shadow .08s ease;
+    overflow:hidden;
+  }
+  .game::before{ /* color wash glow per game */
+    content:"";position:absolute;inset:0;opacity:.14;
+    background:radial-gradient(80% 120% at 100% 0%,var(--c),transparent 70%);
+    pointer-events:none;
+  }
+  .game:active{transform:translatey(4px);box-shadow:0 6px 0 rgba(0,0,0,.45), inset 0 0 0 2px rgba(0,0,0,.4)}
+  .game:focus-visible{outline:4px solid #fff;outline-offset:3px}
+  .emoji{font-size:40px;line-height:1;filter:drop-shadow(0 3px 0 rgba(0,0,0,.5))}
+  .title{font-family:'Press Start 2P',monospace;font-size:13px;line-height:1.5;color:#fff}
+  .sub{font-size:19px;color:var(--muted);letter-spacing:.5px}
+  .badge{
+    position:absolute;top:12px;right:12px;
+    font-family:'Press Start 2P',monospace;font-size:8px;color:#0b0a12;
+    background:var(--c);padding:4px 6px;border-radius:6px;letter-spacing:1px;
+  }
+
+  /* install hint */
+  .hint{
+    margin-top:22px;max-width:520px;width:100%;
+    background:rgba(94,234,212,.08);border:2px dashed rgba(94,234,212,.4);
+    border-radius:12px;padding:14px 16px;font-size:19px;color:var(--cyan);
+    display:none;text-align:center;line-height:1.5;
+  }
+  .hint b{color:#fff}
+  .hint button{
+    margin-left:8px;font-family:'VT323',monospace;font-size:17px;cursor:pointer;
+    background:transparent;border:none;color:var(--muted);text-decoration:underline;
+  }
+  footer{margin-top:auto;padding-top:24px;color:#5a5478;font-size:16px;letter-spacing:1px}
+
+  @media (prefers-reduced-motion:reduce){ *{animation:none!important;transition:none!important} }
+</style>
+</head>
+<body>
+  <header>
+    <div class="marquee"><span class="a">★</span> ARCADE <span class="b">★</span></div>
+    <div class="tagline">SELECT A GAME<span class="cursor">_</span></div>
+  </header>
+
+  <main>
+    <nav class="grid" id="grid" aria-label="Games"></nav>
+
+    <div class="hint" id="hint">
+      <span id="hintText"></span>
+      <button id="hintClose">hide</button>
+    </div>
+  </main>
+
+  <footer>1 PLAYER · INSERT COIN</footer>
+
+<script>
+/* ---------------------------------------------------------------
+   ADD A GAME: copy one entry below. `path` is the folder name in
+   this repo that contains the game's index.html.
+   ---------------------------------------------------------------*/
+const GAMES = [
+  { title:"Dino Volcano Quest", path:"dino-volcano-quest", emoji:"🦖", sub:"Stomp dinos. Dodge lava.",  color:"#ff6b35", badge:"PLAY" },
+  { title:"Monster Collector",  path:"monster-collector",  emoji:"👾", sub:"Catch & fuse monsters.",    color:"#a855f7", badge:"PLAY" },
+  { title:"Ninja Platformer",   path:"ninja-platformer",   emoji:"🥷", sub:"Run, jump, beat the boss.", color:"#ef4444", badge:"PLAY" },
+  // Add Sonic Detective back here once that game's folder exists:
+  // { title:"Sonic Detective",    path:"sonic-detective",    emoji:"🎵", sub:"Train your ears.",          color:"#22d3ee", badge:"PLAY" },
+];
+
+const grid = document.getElementById('grid');
+for(const g of GAMES){
+  const a = document.createElement('a');
+  a.className = 'game';
+  a.href = g.path + '/';
+  a.style.setProperty('--c', g.color);
+  a.setAttribute('aria-label', g.title);
+  a.innerHTML =
+    `<span class="badge">${g.badge}</span>`+
+    `<span class="emoji">${g.emoji}</span>`+
+    `<span class="title">${g.title}</span>`+
+    `<span class="sub">${g.sub}</span>`;
+  grid.appendChild(a);
+}
+
+/* First-run install hint, platform-aware */
+(function(){
+  const standalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+  if(standalone) return;
+  const hint = document.getElementById('hint');
+  const text = document.getElementById('hintText');
+  const isiOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+                (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  text.innerHTML = isiOS
+    ? `Tap <b>Share</b> → <b>Add to Home Screen</b> to play full-screen, like a real app.`
+    : `Open the <b>⋮</b> menu → <b>Install app</b> (or look for the install icon in the address bar).`;
+  hint.style.display = 'block';
+  document.getElementById('hintClose').onclick = () => hint.style.display = 'none';
+})();
+
+/* Offline support */
+if('serviceWorker' in navigator){
+  window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(()=>{}));
+}
+</script>
+</body>
+</html>
