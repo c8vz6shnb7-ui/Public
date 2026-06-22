@@ -7,7 +7,7 @@
    >>> WHEN AN UPDATE WON'T SHOW UP: bump CACHE_VERSION below by 1
        and re-push. That wipes the old cache on next load. <<<
    ============================================================ */
-const CACHE_VERSION = 1;
+const CACHE_VERSION = 2;
 const CACHE = `arcade-v${CACHE_VERSION}`;
 
 self.addEventListener('install', () => self.skipWaiting());
