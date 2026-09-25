@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover, user-scalable=no">
+<title>Story Studio</title>
+<link rel="apple-touch-icon" href="../icons/apple-touch-icon.png">
+<link rel="icon" href="../icons/favicon-32.png" sizes="32x32">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#14121f;--bg-top:#2c2054;--ink:#f4f0ff;--muted:#a79fc9;--c:#ff9f43;--cyan:#5eead4}
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;height:100%}
+  body{background:radial-gradient(120% 90% at 50% -10%,var(--bg-top),var(--bg) 60%);color:var(--ink);
+    font-family:'VT323',ui-monospace,monospace;min-height:100dvh;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;gap:26px;text-align:center;
+    padding:max(20px,env(safe-area-inset-top)) 18px calc(28px + env(safe-area-inset-bottom))}
+  body::after{content:"";position:fixed;inset:0;pointer-events:none;
+    background:repeating-linear-gradient(0deg,rgba(0,0,0,.18) 0 1px,transparent 1px 3px),
+      radial-gradient(120% 120% at 50% 50%,transparent 62%,rgba(0,0,0,.55));mix-blend-mode:multiply}
+  .emoji{font-size:84px;filter:drop-shadow(0 5px 0 rgba(0,0,0,.5))}
+  h1{font-family:'Press Start 2P',monospace;font-size:clamp(18px,5vw,30px);margin:0;line-height:1.5;
+    text-shadow:0 0 8px rgba(255,159,67,.55),0 4px 0 #6d28d9}
+  p{font-size:24px;color:var(--muted);margin:0;max-width:520px;line-height:1.3}
+  .go{font-family:'Press Start 2P',monospace;font-size:16px;color:#1a1208;background:var(--c);
+    text-decoration:none;padding:22px 30px;border-radius:16px;box-shadow:0 8px 0 #b3621c}
+  .go:active{transform:translateY(5px);box-shadow:0 3px 0 #b3621c}
+  .back{font-size:22px;color:var(--cyan);text-decoration:none}
+  .note{font-size:19px;color:#6f6893}
+</style>
+</head>
+<body>
+  <div class="emoji">📚</div>
+  <h1>STORY STUDIO</h1>
+  <p>Write your own books, make pictures, and meet Sparky!</p>
+  <!-- Story Studio runs on the home Mac (kdp-studio "Kids Studio.command"),
+       so it only opens on home Wi-Fi while that window is running. -->
+  <a class="go" href="http://M1-14-MacBook-Pro.local:8770/">▶ START</a>
+  <p class="note">Works at home. If it won't open, ask a grown-up to start Story Studio on the computer.</p>
+  <a class="back" href="../">◀ back to arcade</a>
+</body>
+</html>
